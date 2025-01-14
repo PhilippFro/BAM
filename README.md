@@ -20,7 +20,7 @@ The code requires Python 3.10.8 and the following packages:
 ### Quick Setup
 1. Clone this repository:
 ```
-git clone https://github.com/yourusername/BAM.git
+git clone https://github.com/PhilippFro/BAM.git
 cd BAM
 ```
 
