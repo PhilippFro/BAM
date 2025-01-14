@@ -78,10 +78,12 @@ If you find this code useful in your research, please cite our paper:
 
 ```
 @inproceedings{froehlich2024bam,
-  title={Graph Structure Inference with BAM: Neural Dependency Processing via Bilinear Attention},
-  author={Froehlich, Philipp and Koeppl, Heinz},
-  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
-  year={2024}
+    title={Graph Structure Inference with {BAM}: Neural Dependency Processing via Bilinear Attention},
+    author={Froehlich, Philipp and Koeppl, Heinz},
+    booktitle={Advances in Neural Information Processing Systems ({NeurIPS})},
+    volume={36},
+    year={2024},
+    url={https://neurips.cc/virtual/2024/poster/96766}
 }
 ```
 
