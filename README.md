@@ -1,4 +1,4 @@
-# BAM: Neural Dependency Processing via Bilinear Attention
+# Graph Structure Inference with BAM: Neural Dependency Processing via Bilinear Attention
 
 This repository contains the official implementation of the NeurIPS 2024 paper ["Graph Structure Inference with BAM: Neural Dependency Processing via Bilinear Attention"](https://neurips.cc/virtual/2024/poster/96766).
 
