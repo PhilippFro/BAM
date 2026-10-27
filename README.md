@@ -11,9 +11,10 @@ by learnable channel gates initialized at `0.01`. Skeleton, collider, direction,
 and ordering heads share the network. Three structured decoding stages follow
 one neural forward pass.
 
-This is an experimental extension, not an official upstream release or a
-pretrained model. The original TensorFlow implementation is included; its
-original instructions are in [README_TENSORFLOW.md](README_TENSORFLOW.md).
+This is an experimental extension, not a pretrained model. The `main` branch
+contains the PyTorch implementation and its NumPy utilities. The original
+TensorFlow implementation and instructions are preserved on the
+[BAM_old branch](https://github.com/PhilippFro/BAM/tree/BAM_old).
 
 ## Start here
 
@@ -182,7 +183,6 @@ test can exercise this command but is not a useful trained causal model.
 | `graph_utils_BAM.py`, `joint_decoding.py` | Skeleton, CPDAG, and consistent DAG decoding |
 | `tests/` | Model, generator, gradient, graph, and checkpoint checks |
 | `PYTORCH_QUICKSTART.md`, `JOINT_MODEL.md` | Usage and architecture details |
-| `README_TENSORFLOW.md`, `BAM_env.yml` | Original TensorFlow workflow |
 
 ## Interpretation and validation
 
@@ -196,9 +196,9 @@ Chebyshev data by default. Nonlinearity alone does not guarantee identifiability
 the generating assumptions matter. Read [JOINT_MODEL.md](JOINT_MODEL.md) before
 interpreting directed estimates as causal conclusions.
 
-The updated PyTorch-only suite passed 68 tests, with two TensorFlow-only modules
-and three opt-in distributed cases skipped. See MULTI_GPU.md for the process-group
-tests and environment limitations.
+The PyTorch-only suite passed 67 tests, with three opt-in distributed cases
+skipped. See MULTI_GPU.md for the process-group tests and environment
+limitations.
 The five-update smoke test reduced its fixed-batch loss from approximately
 2.19287 to 2.18260 and reproduced checkpoint predictions exactly on the tested
 CPU environment. These checks establish execution, not causal recovery accuracy.
@@ -212,10 +212,11 @@ backward implementation.
 ## Upstream and license
 
 Based on upstream commit `d8319340dc91a13d46eebf8f1e6e447a182964e5` from
-[PhilippFro/BAM](https://github.com/PhilippFro/BAM). The source archive contains the
-local extension; downloading the upstream repository alone does not include it.
+[PhilippFro/BAM](https://github.com/PhilippFro/BAM). The `main` branch contains
+BAM2; `BAM_old` preserves the original implementation.
 The archive omits Git history, virtual environments, and generated training outputs.
 
 Original work: Philipp Froehlich and Heinz Koeppl,
 [Graph Structure Inference with BAM: Neural Dependency Processing via Bilinear Attention](https://neurips.cc/virtual/2024/poster/96766), NeurIPS 2024.
-See the original README for citation details and [LICENSE](LICENSE) for the MIT license.
+See the [original README](https://github.com/PhilippFro/BAM/blob/BAM_old/README.md)
+for citation details and [LICENSE](LICENSE) for the MIT license.

@@ -1,6 +1,7 @@
 """TensorFlow-free copy of the original BAM Chebyshev simulation helpers.
 
-The numerical helper bodies are extracted unchanged from generator_cheby_BAM.py.
+The numerical helper bodies are extracted unchanged from generator_cheby_BAM.py
+on the archived BAM_old branch (upstream commit d8319340dc91a13d46eebf8f1e6e447a182964e5).
 They preserve its child,parent adjacency convention, topologically ordered input,
 NumPy-global RNG semantics, coefficient distribution, and noise construction.
 Use joint_data_BAM.sample_batch for source,target labels and isolated RNG state.

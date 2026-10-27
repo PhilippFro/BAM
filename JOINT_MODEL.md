@@ -6,16 +6,15 @@ mechanism-dependent DAG refinement. No pretrained weights are supplied, and
 test coverage establishes implementation properties rather than scientific
 recovery accuracy.
 
-**PyTorch is now available and tested end to end.** Start with
-[PYTORCH_QUICKSTART.md](PYTORCH_QUICKSTART.md) for its simple generator, training
-smoke test, and prediction commands. The architecture and decoding descriptions
-below apply to both implementations; TensorFlow-specific commands are retained
-as a reference.
+Start with [PYTORCH_QUICKSTART.md](PYTORCH_QUICKSTART.md) for installation, the
+generator, training smoke test, and prediction commands. This branch contains
+only the PyTorch implementation and its NumPy utilities. The original code is
+available on [BAM_old](https://github.com/PhilippFro/BAM/tree/BAM_old).
 
 ## Architecture
 
-`joint_model_BAM.JointBAM` reuses the original observation-attention and SPD BAM
-layers. It splits the shared observation encoding into:
+`joint_model_torch.JointBAMTorch` implements observation-attention and SPD BAM
+layers in PyTorch. It splits the shared observation encoding into:
 
 - A directional path with nonlinear node summaries and ordered source/target
   cross-moments, pooled over samples.
@@ -41,7 +40,7 @@ true unshielded-triple mask, avoiding a hard predicted-candidate bottleneck.
 
 ## Three inference stages
 
-`predict_joint_BAM.predict` calls the network once and then decodes its scores:
+`predict_joint_torch.predict` calls the network once and then decodes its scores:
 
 1. **Skeleton:** threshold symmetric edge probabilities and remove self-edges.
 2. **CPDAG:** resolve potentially incompatible collider predictions by searching
@@ -89,7 +88,7 @@ simulation regimes:
 | `linear_gaussian` with varying noise variances | Yes | No |
 | `linear_nongaussian` with independent Laplace noise | Yes | Yes |
 | `nonlinear_anm` with smooth nonlinear parent functions and independent additive Gaussian noise | Yes | Yes |
-| `chebyshev` using the existing generator | Yes | No; its unrestricted mechanisms are not assumed identifiable |
+| `chebyshev` using the NumPy adapter | Yes | No; its unrestricted mechanisms are not assumed identifiable |
 
 `dag_mask` is explicit per-dataset metadata. The loss masks **both** direction
 and ordering objectives when it is zero. Synthetic generating DAG labels are
@@ -104,25 +103,16 @@ Only actual DAG edges impose ordering constraints; unrelated variables receive
 no arbitrary total-order target. Losses are averaged per eligible graph so
 graphs with more variables/triples do not automatically dominate.
 
-## TensorFlow reference: install and train
+## Install and train
 
-Use a separate Python 3.10–3.12 environment. The extension retains Keras 2
-compatibility for the original layers:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements-joint.txt
-export TF_USE_LEGACY_KERAS=1
-```
-
-Set the environment variable before any TensorFlow/Keras imports in notebooks.
-The new entry points set it by default when run in a fresh process.
+Use [PYTORCH_QUICKSTART.md](PYTORCH_QUICKSTART.md) to install
+`requirements-torch.txt`, or follow [MULTI_GPU.md](MULTI_GPU.md) for CUDA and DDP.
+TensorFlow and the legacy Conda environment are not required.
 
 Train all heads using a mix of identifiable and ambiguous regimes:
 
 ```bash
-python train_joint_BAM.py --task both \
+python train_joint_torch.py --task both \
   --mechanisms linear_gaussian nonlinear_anm linear_nongaussian \
   --variables 16 --samples 128 --batch-size 4 \
   --epochs 10 --steps-per-epoch 128 --output-dir runs/joint_bam
@@ -131,7 +121,7 @@ python train_joint_BAM.py --task both \
 For CPDAG-only training:
 
 ```bash
-python train_joint_BAM.py --task cpdag \
+python train_joint_torch.py --task cpdag \
   --mechanisms linear_gaussian nonlinear_anm chebyshev \
   --output-dir runs/cpdag_bam
 ```
@@ -148,13 +138,13 @@ pass inclusive pairs such as `num_variables=(4, 20)`. The CLI currently trains
 at one size for a reproducible baseline. Robust size generalization requires
 varying training sizes and separate evaluation.
 
-## TensorFlow reference: predict
+## Predict
 
 Save one observed data matrix as `.npy` with shape `[samples,variables]`, or as
 `.npz` under key `X`. Columns must have the same interpretation across rows.
 
 ```bash
-python predict_joint_BAM.py --model-dir runs/joint_bam \
+python predict_joint_torch.py --model-dir runs/joint_bam \
   --input observations.npy --output predictions.npz --target both
 ```
 
@@ -167,7 +157,7 @@ and decoder metadata. Existing output files are not overwritten.
 Python usage:
 
 ```python
-from predict_joint_BAM import load_model, predict
+from predict_joint_torch import load_model, predict
 
 model = load_model("runs/joint_bam")
 graphs, scores = predict(model, observations, target="both")
@@ -197,22 +187,12 @@ classes, five-node cases, incompatible collider scores, CPDAG-consistent DAG
 refinement, supervision masks, permutation properties, gradients, optimizer
 updates, dynamic shapes, and weight-save/reload behavior.
 
-For PyTorch, **68 tests pass**, including actual neural forward/backward,
-training updates, and checkpoint tests; two TensorFlow-only modules are skipped.
-See the PyTorch guide for the verified smoke-test results.
-
-Earlier TensorFlow validation in the implementation workspace: **30 pure NumPy graph/data/inference
-tests passed**, and all Python files passed syntax compilation. The neural
-tests are provided but could not be executed: TensorFlow 2.16.2 aborted while
-initializing kernels because this workspace does not expose the `/proc/self`
-process metadata it expects. Consequently, numerical forward/backward passes,
-optimizer updates, and checkpoint round trips remain unverified. No model was
-trained. Run the complete suite in a normal TensorFlow environment before using
-the training results. To reproduce the verified subset:
-
-```bash
-python -m pytest -q tests/test_graph_utils.py tests/test_joint_data.py tests/test_joint_inference.py
-```
+The local CPU suite passes **67 tests**, including neural forward/backward,
+training updates, and checkpoint checks. Three opt-in distributed integration
+cases require a host with suitable local communication sockets (and GPUs for
+the CUDA case); see MULTI_GPU.md. TensorFlow-only tests have been removed.
+The Chebyshev regression uses a frozen output fixture from the original
+implementation, so the test suite is independent of archived Python files.
 
 The collider head currently materializes `O(batch * d^3 * collider_channels)`
 features. Start with modest graphs; batching or sampling candidate triples is

@@ -1,7 +1,6 @@
 """Generator contracts, including the original Chebyshev numerical semantics."""
 
-import ast
-import math
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -76,22 +75,17 @@ def test_tensor_labels_exactly_match_numpy_generator():
 
 
 def test_chebyshev_helpers_preserve_original_numerical_semantics():
-    # Compile only the original's NumPy function definitions; never import TF.
-    original = Path(__file__).resolve().parents[1] / "generator_cheby_BAM.py"
-    tree = ast.parse(original.read_text())
-    tree.body = [node for node in tree.body if isinstance(node, ast.FunctionDef)]
-    namespace = {"np": np, "math": math}
-    exec(compile(tree, str(original), "exec"), namespace)
-    dag_child_parent = np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0]])
+    # Frozen output from the archived implementation keeps this regression
+    # independent of TensorFlow source files and network access.
+    fixture = json.loads((Path(__file__).parent / "fixtures" / "chebyshev_reference.json").read_text())
     state = np.random.get_state()
     try:
-        np.random.seed(67)
-        reference = namespace["sample_from_dag_chebyshev"](dag_child_parent, 20)
-        np.random.seed(67)
-        actual = chebyshev_numpy.sample_from_dag_chebyshev(dag_child_parent, 20)
+        np.random.seed(fixture["seed"])
+        actual = chebyshev_numpy.sample_from_dag_chebyshev(
+            np.asarray(fixture["dag_child_parent"]), fixture["samples"])
     finally:
         np.random.set_state(state)
-    np.testing.assert_array_equal(actual, reference)
+    np.testing.assert_allclose(actual, fixture["observations"], rtol=1e-12, atol=1e-12)
 
 
 def test_all_generators_work_when_tensorflow_import_is_forbidden():

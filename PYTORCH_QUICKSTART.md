@@ -1,9 +1,9 @@
 # PyTorch BAM: generator and training smoke test
 
-The original repository and first joint prototype use TensorFlow. The new
-`*_torch.py` implementation runs entirely in **PyTorch**, including training
-and checkpoint loading. All synthetic generators, including the original
-Chebyshev numerical helpers, work without TensorFlow.
+BAM2 runs entirely in **PyTorch**, including training and checkpoint loading.
+All synthetic generators, including the Chebyshev numerical helpers, work
+without TensorFlow. The original implementation is archived on
+[BAM_old](https://github.com/PhilippFro/BAM/tree/BAM_old).
 
 ## 1. Install
 
@@ -77,7 +77,9 @@ and collider predictions. `dag_mask` disables **both** direction and order
 losses for ambiguous regimes; knowing a simulated DAG does not itself establish
 observational identifiability. Chebyshev helper bodies are unchanged from the
 original code, extracted into `chebyshev_numpy.py` to remove its TensorFlow
-import. Tests verify identical draws for identical legacy NumPy seeds.
+import. A frozen reference fixture checks numerical agreement with the archived
+generator for a fixed legacy NumPy seed; no old source files or network access
+are needed.
 
 ## 3. Run the smoke test
 
@@ -192,10 +194,9 @@ an undirected edge. See [JOINT_MODEL.md](JOINT_MODEL.md) for decoding details.
 python -m pytest -q tests
 ```
 
-The updated PyTorch-only environment passed **68 tests**. Two TensorFlow-specific
-modules and three opt-in distributed integration cases were skipped. The latter
-need a host permitting local communication sockets; see MULTI_GPU.md. Tests include
-actual forward/backward passes, nonzero gradients in both feature branches,
+The PyTorch-only environment passed **67 tests**. Three opt-in distributed
+integration cases were skipped; they need a host permitting local communication
+sockets. See MULTI_GPU.md. Tests include actual forward/backward passes, nonzero gradients in both feature branches,
 sample/variable permutation properties, dynamic sizes, constant inputs,
 matrix-log gradient checks, checkpoint round trips, generators, and graph
 consistency. A separate mixed-regime training run also completed with fresh

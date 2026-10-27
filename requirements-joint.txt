@@ -1,5 +1,0 @@
-# TensorFlow 2.16 / Python 3.10-3.12; retain Keras 2 for the original BAM layers.
-tensorflow==2.16.2
-tf-keras==2.16.0
-numpy>=1.26,<2
-pytest>=8,<10

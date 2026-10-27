@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from graph_utils_BAM import collider_targets, dag_to_cpdag, validate_dag
-from predict_joint_BAM import decode_predictions, predict
+from joint_decoding import decode_predictions
 
 
 def _scores(dag):
@@ -41,17 +41,3 @@ def test_stopping_after_cpdag_does_not_expose_witness_as_dag():
     assert "dag" not in result and "order" not in result
     with pytest.raises(ValueError, match="direction predictions"):
         decode_predictions(scores, target="both")
-
-
-def test_predict_calls_network_once_for_all_stages():
-    dag = np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]])
-    class FakeNetwork:
-        calls = 0
-        def __call__(self, x, training=False):
-            self.calls += 1
-            assert x.shape == (1, 12, 3)
-            return {key: value[None] for key, value in _scores(dag).items()}
-    network = FakeNetwork()
-    result, _ = predict(network, np.random.default_rng(0).normal(size=(12, 3)))
-    assert network.calls == 1
-    np.testing.assert_array_equal(dag_to_cpdag(result["dag"]), result["cpdag"])
