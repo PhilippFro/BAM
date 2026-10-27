@@ -1,0 +1,5 @@
+# CPU quickstart: install torch separately with the PyTorch CPU wheel index.
+# CUDA setup: see MULTI_GPU.md or use install_torch.py --cuda with a compatible driver.
+torch>=2.6,<3
+numpy>=1.26,<3
+pytest>=8,<10

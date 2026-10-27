@@ -3,3 +3,9 @@ __pycache__/
 *.hd5
 *.npy
 .DS_Store
+.pytest_cache/
+runs/
+*.weights.h5
+*.pt
+.venv-torch/
+pytest-of-root/
