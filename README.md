@@ -5,7 +5,7 @@ with one PyTorch network for a single model **skeleton → CPDAG → DAG** estim
 the model, synthetic data generators, training and prediction scripts, requirements,
 and tests. Code was updated from an old Tensorflow version to an actual Pytorch version.
 
-A directional stream was added to the BAM stream controlled
+A directional stream (for learning causal directions) was added to the BAM stream controlled
 by learnable channel gates. Skeleton, collider, direction,
 and ordering heads share the network. Three structured decoding stages follow
 one neural forward pass.
